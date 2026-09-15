@@ -1,0 +1,10 @@
+# What a scaffolded reagent carries. Azoth's defaults leave every section off, so a test
+# that wants a resource rendered asks for it here.
+backup:
+  enabled: true
+network:
+  enabled: true
+maintenance:
+  enabled: true
+credentials:
+  enabled: true

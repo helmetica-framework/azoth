@@ -1,0 +1,340 @@
+suite: azoth library chart
+templates:
+  - azoth.yaml
+release:
+  name: instance
+tests:
+  # The fixture carries no values of its own, so this is what azoth's own defaults render.
+  - it: renders nothing for a reagent that asks for nothing
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  # A reagent that carried a section before it grew an `enabled` key, or that set one to
+  # null outright, reads as off rather than as a nil pointer.
+  - it: reads a section set to null as turned off
+    values:
+      - enabled.yaml
+    set:
+      backup: null
+      network: null
+      maintenance: null
+      credentials: null
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: renders the framework's resources the reagent asks for
+    values:
+      - enabled.yaml
+    asserts:
+      - hasDocuments:
+          count: 4
+      # A selector that matches nothing fails the assertion, so each of these is also a
+      # check that the resource is there at all.
+      - isAPIVersion:
+          of: arcana.helmetica.io/v1
+        documentSelector:
+          path: kind
+          value: Arcanum
+      - isAPIVersion:
+          of: seals.helmetica.io/v1
+        documentSelector:
+          path: kind
+          value: Seal
+      - isAPIVersion:
+          of: rituals.helmetica.io/v1
+        documentSelector:
+          path: kind
+          value: Maintenance
+      - isAPIVersion:
+          of: backups.helmetica.io/v1
+        documentSelector:
+          path: kind
+          value: BackupPolicy
+
+  - it: leaves out what the reagent turned off
+    values:
+      - enabled.yaml
+    set:
+      backup.enabled: false
+      network.enabled: false
+      maintenance.enabled: false
+      credentials.enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: labels every resource it renders
+    values:
+      - enabled.yaml
+    asserts:
+      - exists:
+          path: metadata.labels["helm.sh/chart"]
+      - equal:
+          path: metadata.labels["app.kubernetes.io/name"]
+          value: fixture
+      - equal:
+          path: metadata.labels["app.kubernetes.io/instance"]
+          value: instance
+      - equal:
+          path: metadata.labels["app.kubernetes.io/managed-by"]
+          value: Helm
+
+  # Backups
+  - it: asks ampulla for backups
+    values:
+      - enabled.yaml
+    documentSelector:
+      path: kind
+      value: BackupPolicy
+    asserts:
+      - equal:
+          path: metadata.name
+          value: instance
+      - equal:
+          path: spec.mode
+          value: Schedule
+      # Backups belong in the night, so an empty schedule is filled in here rather than
+      # left to the controller's `@daily-random`, which may pick the afternoon.
+      - matchRegex:
+          path: spec.schedule.backup
+          pattern: ^[0-9]{1,2} (22|23|0|1|2|3|4|5) \* \* \*$
+      - notExists:
+          path: spec.schedule.prune
+      - notExists:
+          path: spec.schedule.check
+      # An empty retention would render as YAML null, which the API rejects as "must be of
+      # type object", and a zero would read as "keep none" rather than "take the default".
+      - notExists:
+          path: spec.retention
+
+  - it: renders no BackupPolicy when backups are off
+    values:
+      - enabled.yaml
+    set:
+      backup.enabled: false
+    asserts:
+      - hasDocuments:
+          count: 3
+
+  - it: passes the backup values through to the policy
+    values:
+      - enabled.yaml
+    set:
+      backup.schedule.backup: "0 2 * * *"
+      backup.bucketClassName: backups-lpg
+      backup.retention.keepDaily: 14
+    documentSelector:
+      path: kind
+      value: BackupPolicy
+    asserts:
+      - equal:
+          path: spec.schedule.backup
+          value: "0 2 * * *"
+      - notExists:
+          path: spec.schedule.prune
+      - equal:
+          path: spec.bucketClassName
+          value: backups-lpg
+      - equal:
+          path: spec.retention.keepDaily
+          value: 14
+      - notExists:
+          path: spec.retention.keepWeekly
+
+  # Helm re-renders on every reconcile. A time drawn at random each time would move the
+  # backup every few minutes, so it is hashed out of the instance instead.
+  - it: gives an instance the same nightly time on every render
+    values:
+      - enabled.yaml
+    release:
+      name: instance
+      namespace: instance-ns
+    documentSelector:
+      path: kind
+      value: BackupPolicy
+    asserts:
+      - equal:
+          path: spec.schedule.backup
+          value: "12 23 * * *"
+
+  - it: gives another instance a different nightly time
+    values:
+      - enabled.yaml
+    release:
+      name: instance
+      namespace: other-ns
+    documentSelector:
+      path: kind
+      value: BackupPolicy
+    asserts:
+      - notEqual:
+          path: spec.schedule.backup
+          value: "12 23 * * *"
+      - matchRegex:
+          path: spec.schedule.backup
+          pattern: ^[0-9]{1,2} (22|23|0|1|2|3|4|5) \* \* \*$
+
+  # In BucketOnly mode the service's own operator writes the backups. Ampulla only hands it
+  # a bucket, and neither schedule nor retention is its to act on.
+  - it: asks for nothing but a bucket when the service backs itself up
+    values:
+      - enabled.yaml
+    set:
+      backup.mode: BucketOnly
+      backup.schedule.backup: "0 2 * * *"
+      backup.retention.keepDaily: 14
+      backup.bucketClassName: backups-lpg
+    documentSelector:
+      path: kind
+      value: BackupPolicy
+    asserts:
+      - equal:
+          path: spec.mode
+          value: BucketOnly
+      - equal:
+          path: spec.bucketClassName
+          value: backups-lpg
+      - notExists:
+          path: spec.schedule
+      - notExists:
+          path: spec.retention
+
+  # Network
+  - it: seals the service off by default
+    values:
+      - enabled.yaml
+    documentSelector:
+      path: kind
+      value: Seal
+    asserts:
+      - equal:
+          path: metadata.name
+          value: networkconfig
+      - equal:
+          path: spec.allowedNamespaces
+          value: []
+      - equal:
+          path: spec.allowAllNamespaces
+          value: false
+
+  # Rendered without toYaml this comes out as `[alpha beta]`, which YAML reads as the
+  # single string "alpha beta" rather than two namespaces.
+  - it: passes every allowed namespace through as its own list entry
+    values:
+      - enabled.yaml
+    set:
+      network.allowedNamespaces: [alpha, beta]
+    documentSelector:
+      path: kind
+      value: Seal
+    asserts:
+      - equal:
+          path: spec.allowedNamespaces
+          value: [alpha, beta]
+
+  - it: opens the service up when asked
+    values:
+      - enabled.yaml
+    set:
+      network.allowAllNamespaces: true
+    documentSelector:
+      path: kind
+      value: Seal
+    asserts:
+      - equal:
+          path: spec.allowAllNamespaces
+          value: true
+
+  # Maintenance
+  - it: leaves the maintenance window to the operator by default
+    values:
+      - enabled.yaml
+    documentSelector:
+      path: kind
+      value: Maintenance
+    asserts:
+      - equal:
+          path: metadata.name
+          value: default
+      - equal:
+          path: spec.window
+          value: ""
+      - equal:
+          path: spec.suspend
+          value: false
+
+  - it: puts the instance in the window the reagent names
+    values:
+      - enabled.yaml
+    set:
+      maintenance.window: sunday-night
+      maintenance.suspend: true
+    documentSelector:
+      path: kind
+      value: Maintenance
+    asserts:
+      - equal:
+          path: spec.window
+          value: sunday-night
+      - equal:
+          path: spec.suspend
+          value: true
+
+  # Credentials
+  - it: names the credentials secret after the release by default
+    values:
+      - enabled.yaml
+    documentSelector:
+      path: kind
+      value: Arcanum
+    asserts:
+      - equal:
+          path: metadata.name
+          value: credentials
+      - equal:
+          path: spec.target.name
+          value: instance-credentials
+      # An empty mapping is left out, which is how a reagent declares the secret before it
+      # knows what goes in it.
+      - notExists:
+          path: spec.credentials.valueMapping
+
+  - it: lets the reagent name the credentials secret
+    values:
+      - enabled.yaml
+    set:
+      credentials.targetSecret: redis-credentials
+    documentSelector:
+      path: kind
+      value: Arcanum
+    asserts:
+      - equal:
+          path: spec.target.name
+          value: redis-credentials
+
+  - it: passes the reagent's value mapping through untouched
+    values:
+      - enabled.yaml
+    set:
+      credentials.valueMapping:
+        host:
+          source: const
+          value: my-host
+        url:
+          source: template
+          value: postgres://{{.username}}@{{.host}}:5432
+    documentSelector:
+      path: kind
+      value: Arcanum
+    asserts:
+      - equal:
+          path: spec.credentials.valueMapping.host.source
+          value: const
+      - equal:
+          path: spec.credentials.valueMapping.host.value
+          value: my-host
+      - equal:
+          path: spec.credentials.valueMapping.url.value
+          value: postgres://{{.username}}@{{.host}}:5432
