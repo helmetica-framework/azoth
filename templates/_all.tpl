@@ -9,10 +9,6 @@
   The parentheses keep a section that was set to null off rather than a nil pointer, so
   `network: ~` in a reagent reads the same as `network.enabled: false`.
 */}}
-{{- if ($values.credentials).enabled }}
----
-{{ include "azoth.credentials" . }}
-{{- end }}
 {{- if ($values.network).enabled }}
 ---
 {{ include "azoth.seal" . }}

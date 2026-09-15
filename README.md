@@ -5,10 +5,9 @@ The alchemists' universal solvent, present in every operation.
 ## Library Chart for Helmetica Reagents
 
 Azoth holds the templates every reagent renders on top of its service: the backup policy,
-the network seal, the maintenance window and the credentials arcanum, plus the shared
-helpers behind them. A reagent depends on it and includes it in one line, so a fix here
-reaches every reagent on the next version bump instead of being copied once at scaffold
-time and left to rot.
+the network seal and the maintenance window, plus the shared helpers behind them. A
+reagent depends on it and includes it in one line, so a fix here reaches every reagent on
+the next version bump instead of being copied once at scaffold time and left to rot.
 
 Reagents are scaffolded from [ferment](https://github.com/helmetica-framework/ferment),
 which carries the dependency and the include below. Nothing here needs to be wired up by
@@ -29,12 +28,12 @@ dependencies:
 {{- include "azoth.all" . }}
 ```
 
-`azoth.all` renders every framework resource whose `enabled` flag is set.
+`azoth.all` renders every framework resource whose `enabled` flag is set. Every flag is
+off here, so a reagent gets a resource only where its own values.yaml asks for one.
 
 | Template | Renders |
 | -------- | ------- |
 | `azoth.all` | everything below, each gated by its `enabled` value |
-| `azoth.credentials` | `Arcanum`, from `credentials.valueMapping` |
 | `azoth.seal` | `Seal`, from `network` |
 | `azoth.maintenance` | `Maintenance`, from `maintenance` |
 | `azoth.backuppolicy` | `BackupPolicy`, from `backup` |

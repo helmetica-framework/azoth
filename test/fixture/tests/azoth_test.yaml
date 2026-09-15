@@ -19,7 +19,6 @@ tests:
       backup: null
       network: null
       maintenance: null
-      credentials: null
     asserts:
       - hasDocuments:
           count: 0
@@ -29,14 +28,9 @@ tests:
       - enabled.yaml
     asserts:
       - hasDocuments:
-          count: 4
+          count: 3
       # A selector that matches nothing fails the assertion, so each of these is also a
       # check that the resource is there at all.
-      - isAPIVersion:
-          of: arcana.helmetica.io/v1
-        documentSelector:
-          path: kind
-          value: Arcanum
       - isAPIVersion:
           of: seals.helmetica.io/v1
         documentSelector:
@@ -60,7 +54,6 @@ tests:
       backup.enabled: false
       network.enabled: false
       maintenance.enabled: false
-      credentials.enabled: false
     asserts:
       - hasDocuments:
           count: 0
@@ -116,7 +109,7 @@ tests:
       backup.enabled: false
     asserts:
       - hasDocuments:
-          count: 3
+          count: 2
 
   - it: passes the backup values through to the policy
     values:
@@ -281,60 +274,3 @@ tests:
       - equal:
           path: spec.suspend
           value: true
-
-  # Credentials
-  - it: names the credentials secret after the release by default
-    values:
-      - enabled.yaml
-    documentSelector:
-      path: kind
-      value: Arcanum
-    asserts:
-      - equal:
-          path: metadata.name
-          value: credentials
-      - equal:
-          path: spec.target.name
-          value: instance-credentials
-      # An empty mapping is left out, which is how a reagent declares the secret before it
-      # knows what goes in it.
-      - notExists:
-          path: spec.credentials.valueMapping
-
-  - it: lets the reagent name the credentials secret
-    values:
-      - enabled.yaml
-    set:
-      credentials.targetSecret: redis-credentials
-    documentSelector:
-      path: kind
-      value: Arcanum
-    asserts:
-      - equal:
-          path: spec.target.name
-          value: redis-credentials
-
-  - it: passes the reagent's value mapping through untouched
-    values:
-      - enabled.yaml
-    set:
-      credentials.valueMapping:
-        host:
-          source: const
-          value: my-host
-        url:
-          source: template
-          value: postgres://{{.username}}@{{.host}}:5432
-    documentSelector:
-      path: kind
-      value: Arcanum
-    asserts:
-      - equal:
-          path: spec.credentials.valueMapping.host.source
-          value: const
-      - equal:
-          path: spec.credentials.valueMapping.host.value
-          value: my-host
-      - equal:
-          path: spec.credentials.valueMapping.url.value
-          value: postgres://{{.username}}@{{.host}}:5432

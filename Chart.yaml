@@ -5,6 +5,6 @@ description: Shared templates for helmetica reagents
 # Nothing here renders on its own, reagents include it.
 type: library
 
-version: 0.0.1
+version: 0.0.2
 
 dependencies: []

@@ -6,5 +6,3 @@ network:
   enabled: true
 maintenance:
   enabled: true
-credentials:
-  enabled: true

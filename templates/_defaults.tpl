@@ -30,10 +30,6 @@ maintenance:
   enabled: false
   window: ""
   suspend: false
-credentials:
-  enabled: false
-  targetSecret: ""
-  valueMapping: {}
 {{- end }}
 
 {{/*
