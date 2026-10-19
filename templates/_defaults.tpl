@@ -4,6 +4,9 @@
   until the reagent picks it up. The rest of each section is the shape the reagent inherits
   once it does; the knob becomes settable on the claim as soon as it is in the reagent's
   own values.yaml, which is the file chrysopoeia generates the CRD from.
+
+  The one exception is monitoring: every instance is scraped, so it is on unless the
+  reagent turns it off explicitly.
 */}}
 {{- define "azoth.defaults" -}}
 backup:
@@ -30,6 +33,8 @@ maintenance:
   enabled: false
   window: ""
   suspend: false
+monitoring:
+  enabled: true
 {{- end }}
 
 {{/*

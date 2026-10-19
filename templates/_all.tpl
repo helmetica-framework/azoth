@@ -25,4 +25,8 @@
 ---
 {{ include "azoth.alerting.email" . }}
 {{- end }}
+{{- if ($values.monitoring).enabled }}
+---
+{{ include "azoth.monitoring.networkpolicy" . }}
+{{- end }}
 {{- end }}
