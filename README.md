@@ -5,7 +5,7 @@ The alchemists' universal solvent, present in every operation.
 ## Library Chart for Helmetica Reagents
 
 Azoth holds the templates every reagent renders on top of its service: the backup policy,
-the network seal and the maintenance window, plus the shared helpers behind them. A
+the network seal, the maintenance window and the monitoring network policy, plus the shared helpers behind them. A
 reagent depends on it and includes it in one line, so a fix here reaches every reagent on
 the next version bump instead of being copied once at scaffold time and left to rot.
 
@@ -28,8 +28,10 @@ dependencies:
 {{- include "azoth.all" . }}
 ```
 
-`azoth.all` renders every framework resource whose `enabled` flag is set. Every flag is
-off here, so a reagent gets a resource only where its own values.yaml asks for one.
+`azoth.all` renders every framework resource whose `enabled` flag is set. Every flag but
+`monitoring.enabled` is off here, so a reagent gets a resource only where its own
+values.yaml asks for one. Monitoring is on unless the reagent sets `monitoring.enabled:
+false`.
 
 | Template | Renders |
 | -------- | ------- |
@@ -37,6 +39,8 @@ off here, so a reagent gets a resource only where its own values.yaml asks for o
 | `azoth.seal` | `Seal`, from `network` |
 | `azoth.maintenance` | `Maintenance`, from `maintenance` |
 | `azoth.backuppolicy` | `BackupPolicy`, from `backup` |
+| `azoth.alerting.email` | `AlertmanagerConfig`, from `alerting` |
+| `azoth.monitoring.networkpolicy` | `NetworkPolicy` letting Prometheus (namespace labelled `helmetica.io/monitoring: system`) reach every pod on every port, from `monitoring` |
 
 Helpers: `azoth.name`, `azoth.fullname`, `azoth.chart`, `azoth.labels`,
 `azoth.selectorLabels`, `azoth.nightlySchedule`. They are called with the reagent's root

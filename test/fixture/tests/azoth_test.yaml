@@ -5,10 +5,13 @@ release:
   name: instance
 tests:
   # The fixture carries no values of its own, so this is what azoth's own defaults render.
-  - it: renders nothing for a reagent that asks for nothing
+  # Monitoring is the one section on by default.
+  - it: renders only the monitoring policy for a reagent that asks for nothing
     asserts:
       - hasDocuments:
-          count: 0
+          count: 1
+      - isKind:
+          of: NetworkPolicy
 
   # A reagent that carried a section before it grew an `enabled` key, or that set one to
   # null outright, reads as off rather than as a nil pointer.
@@ -20,6 +23,7 @@ tests:
       backup: null
       network: null
       maintenance: null
+      monitoring: null
     asserts:
       - hasDocuments:
           count: 0
@@ -29,7 +33,7 @@ tests:
       - enabled.yaml
     asserts:
       - hasDocuments:
-          count: 4
+          count: 5
       # A selector that matches nothing fails the assertion, so each of these is also a
       # check that the resource is there at all.
       - isAPIVersion:
@@ -52,6 +56,11 @@ tests:
         documentSelector:
           path: kind
           value: AlertmanagerConfig
+      - isAPIVersion:
+          of: networking.k8s.io/v1
+        documentSelector:
+          path: kind
+          value: NetworkPolicy
 
   - it: leaves out what the reagent turned off
     values:
@@ -61,6 +70,7 @@ tests:
       network.enabled: false
       maintenance.enabled: false
       alerting.enabled: false
+      monitoring.enabled: false
     asserts:
       - hasDocuments:
           count: 0
@@ -116,7 +126,7 @@ tests:
       backup.enabled: false
     asserts:
       - hasDocuments:
-          count: 3
+          count: 4
 
   - it: passes the backup values through to the policy
     values:
@@ -281,3 +291,30 @@ tests:
       - equal:
           path: spec.suspend
           value: true
+
+  # Monitoring
+  - it: lets prometheus reach every pod on every port by default
+    documentSelector:
+      path: kind
+      value: NetworkPolicy
+    asserts:
+      - equal:
+          path: metadata.name
+          value: allow-monitoring
+      - equal:
+          path: spec.podSelector
+          value: {}
+      - equal:
+          path: spec.ingress
+          value:
+            - from:
+                - namespaceSelector:
+                    matchLabels:
+                      helmetica.io/monitoring: system
+
+  - it: keeps prometheus out when monitoring is turned off
+    set:
+      monitoring.enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0

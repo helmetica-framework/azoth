@@ -13,8 +13,12 @@ _default:
 test:
     #!/usr/bin/env bash
     set -euo pipefail
+    # Helm 4 verifies plugins on install, which a git source cannot satisfy. Helm 3 has
+    # no --verify flag at all.
+    verify=""
+    helm version --template '{{ "{{" }} .Version {{ "}}" }}' | grep -q '^v3' || verify="--verify=false"
     helm plugin list | grep -q '^unittest' \
-        || helm plugin install https://github.com/helm-unittest/helm-unittest --version {{ UNITTEST_VERSION }}
+        || helm plugin install https://github.com/helm-unittest/helm-unittest --version {{ UNITTEST_VERSION }} $verify
     helm lint .
     # Nothing in a library chart renders on its own, so the tests run against a small
     # application chart that includes it.
