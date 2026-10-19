@@ -16,6 +16,7 @@ tests:
     values:
       - enabled.yaml
     set:
+      alerting: null
       backup: null
       network: null
       maintenance: null
@@ -28,7 +29,7 @@ tests:
       - enabled.yaml
     asserts:
       - hasDocuments:
-          count: 3
+          count: 4
       # A selector that matches nothing fails the assertion, so each of these is also a
       # check that the resource is there at all.
       - isAPIVersion:
@@ -46,6 +47,11 @@ tests:
         documentSelector:
           path: kind
           value: BackupPolicy
+      - isAPIVersion:
+          of: monitoring.coreos.com/v1alpha1
+        documentSelector:
+          path: kind
+          value: AlertmanagerConfig
 
   - it: leaves out what the reagent turned off
     values:
@@ -54,6 +60,7 @@ tests:
       backup.enabled: false
       network.enabled: false
       maintenance.enabled: false
+      alerting.enabled: false
     asserts:
       - hasDocuments:
           count: 0
@@ -109,7 +116,7 @@ tests:
       backup.enabled: false
     asserts:
       - hasDocuments:
-          count: 2
+          count: 3
 
   - it: passes the backup values through to the policy
     values:

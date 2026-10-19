@@ -21,4 +21,8 @@
 ---
 {{ include "azoth.backuppolicy" . }}
 {{- end }}
+{{- if ($values.alerting).enabled }}
+---
+{{ include "azoth.alerting.email" . }}
+{{- end }}
 {{- end }}

@@ -6,3 +6,5 @@ network:
   enabled: true
 maintenance:
   enabled: true
+alerting:
+  enabled: true
