@@ -257,6 +257,63 @@ tests:
           path: spec.allowAllNamespaces
           value: true
 
+  - it: exposes nothing by default
+    values:
+      - enabled.yaml
+    documentSelector:
+      path: kind
+      value: Seal
+    asserts:
+      - notExists:
+          path: spec.expose
+
+  - it: exposes nothing while the claim leaves expose off
+    values:
+      - enabled.yaml
+    set:
+      network.exposures:
+        - name: redis
+          protocol: TCP
+          backend: {service: redis, port: 6379}
+    documentSelector:
+      path: kind
+      value: Seal
+    asserts:
+      - notExists:
+          path: spec.expose
+
+  - it: exposes the reagent's exposures when the claim turns expose on
+    values:
+      - enabled.yaml
+    set:
+      network.expose: true
+      network.exposures:
+        - name: redis
+          protocol: TCP
+          backend: {service: redis, port: 6379}
+    documentSelector:
+      path: kind
+      value: Seal
+    asserts:
+      - equal:
+          path: spec.expose
+          value:
+            - name: redis
+              protocol: TCP
+              backend: {service: redis, port: 6379}
+
+  - it: exposes nothing when the reagent has no exposures to offer
+    values:
+      - enabled.yaml
+    set:
+      network.expose: true
+    documentSelector:
+      path: kind
+      value: Seal
+    asserts:
+      - notExists:
+          path: spec.expose
+
   # Maintenance
   - it: leaves the maintenance window to the operator by default
     values:

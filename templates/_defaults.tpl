@@ -29,6 +29,8 @@ network:
   enabled: false
   allowedNamespaces: []
   allowAllNamespaces: false
+  expose: false
+  exposures: []
 maintenance:
   enabled: false
   window: ""
