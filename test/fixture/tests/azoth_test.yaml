@@ -24,6 +24,7 @@ tests:
       network: null
       maintenance: null
       monitoring: null
+      billing: null
     asserts:
       - hasDocuments:
           count: 0
@@ -375,3 +376,135 @@ tests:
     asserts:
       - hasDocuments:
           count: 0
+
+  # Billing data
+  - it: renders the BillingData when the reagent asks for it
+    set:
+      billing.enabled: true
+    documentSelector:
+      path: kind
+      value: BillingData
+    asserts:
+      - isAPIVersion:
+          of: libra.helmetica.io/v1
+      - equal:
+          path: metadata.name
+          value: billing
+
+  - it: labels the BillingData
+    set:
+      billing.enabled: true
+    documentSelector:
+      path: kind
+      value: BillingData
+    asserts:
+      - exists:
+          path: metadata.labels["helm.sh/chart"]
+      - equal:
+          path: metadata.labels["app.kubernetes.io/name"]
+          value: fixture
+      - equal:
+          path: metadata.labels["app.kubernetes.io/instance"]
+          value: instance
+      - equal:
+          path: metadata.labels["app.kubernetes.io/managed-by"]
+          value: Helm
+
+  - it: leaves out billing items and metadata the reagent does not set
+    set:
+      billing.enabled: true
+    documentSelector:
+      path: kind
+      value: BillingData
+    asserts:
+      - notExists:
+          path: spec.items
+      - notExists:
+          path: spec.metadata
+
+  - it: turns the billing items into a list sorted by name
+    set:
+      billing.enabled: true
+      billing.items:
+        storage: 10Gi
+        cpu: 2
+    documentSelector:
+      path: kind
+      value: BillingData
+    asserts:
+      - equal:
+          path: spec.items
+          value:
+            - name: cpu
+              value: "2"
+            - name: storage
+              value: 10Gi
+      - notExists:
+          path: spec.metadata
+
+  - it: passes the billing metadata through
+    set:
+      billing.enabled: true
+      billing.metadata:
+        customer: acme
+        plan: small
+    documentSelector:
+      path: kind
+      value: BillingData
+    asserts:
+      - equal:
+          path: spec.metadata
+          value:
+            customer: acme
+            plan: small
+      - notExists:
+          path: spec.items
+
+  - it: adds the cluster name from the platform values to the billing metadata
+    set:
+      billing.enabled: true
+      __platform__:
+        io.vshn.cluster/v1alpha1:
+          name: athanor
+    documentSelector:
+      path: kind
+      value: BillingData
+    asserts:
+      - equal:
+          path: spec.metadata
+          value:
+            cluster: athanor
+
+  - it: merges the cluster name with the reagent's billing metadata
+    set:
+      billing.enabled: true
+      billing.metadata:
+        plan: small
+      __platform__:
+        io.vshn.cluster/v1alpha1:
+          name: athanor
+    documentSelector:
+      path: kind
+      value: BillingData
+    asserts:
+      - equal:
+          path: spec.metadata
+          value:
+            cluster: athanor
+            plan: small
+
+  - it: lets the platform cluster name win over the reagent's
+    set:
+      billing.enabled: true
+      billing.metadata:
+        cluster: other
+      __platform__:
+        io.vshn.cluster/v1alpha1:
+          name: athanor
+    documentSelector:
+      path: kind
+      value: BillingData
+    asserts:
+      - equal:
+          path: spec.metadata.cluster
+          value: athanor
