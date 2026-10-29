@@ -29,4 +29,8 @@
 ---
 {{ include "azoth.monitoring.networkpolicy" . }}
 {{- end }}
+{{- if ($values.billing).enabled }}
+---
+{{ include  "azoth.billingdata" . }}
+{{- end }}
 {{- end }}
