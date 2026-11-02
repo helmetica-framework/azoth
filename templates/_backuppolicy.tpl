@@ -6,7 +6,7 @@
 */}}
 {{- define "azoth.backuppolicy" -}}
 {{- $backup := (fromYaml (include "azoth.values" .)).backup -}}
-apiVersion: backups.helmetica.io/v1
+apiVersion: ampulla.helmetica.io/v1
 kind: BackupPolicy
 metadata:
   name: {{ .Release.Name }}
