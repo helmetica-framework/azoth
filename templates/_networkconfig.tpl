@@ -1,11 +1,11 @@
 {{/*
-  Who may reach this service. Sigillum reads the seal off the instance and writes the
+  Who may reach this service. Sigillum reads the network config off the instance and writes the
   network policies behind it.
 */}}
-{{- define "azoth.seal" -}}
+{{- define "azoth.networkconfig" -}}
 {{- $network := (fromYaml (include "azoth.values" .)).network -}}
-apiVersion: seals.helmetica.io/v1
-kind: Seal
+apiVersion: sigillum.helmetica.io/v1
+kind: NetworkConfig
 metadata:
   name: networkconfig
   labels:

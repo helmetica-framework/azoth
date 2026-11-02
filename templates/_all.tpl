@@ -11,7 +11,7 @@
 */}}
 {{- if ($values.network).enabled }}
 ---
-{{ include "azoth.seal" . }}
+{{ include "azoth.networkconfig" . }}
 {{- end }}
 {{- if ($values.maintenance).enabled }}
 ---

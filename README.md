@@ -5,7 +5,7 @@ The alchemists' universal solvent, present in every operation.
 ## Library Chart for Helmetica Reagents
 
 Azoth holds the templates every reagent renders on top of its service: the backup policy,
-the network seal, the maintenance window and the monitoring network policy, plus the shared helpers behind them. A
+the network config, the maintenance window and the monitoring network policy, plus the shared helpers behind them. A
 reagent depends on it and includes it in one line, so a fix here reaches every reagent on
 the next version bump instead of being copied once at scaffold time and left to rot.
 
@@ -36,7 +36,7 @@ false`.
 | Template | Renders |
 | -------- | ------- |
 | `azoth.all` | everything below, each gated by its `enabled` value |
-| `azoth.seal` | `Seal`, from `network` |
+| `azoth.networkconfig` | `NetworkConfig`, from `network` |
 | `azoth.maintenance` | `Maintenance`, from `maintenance` |
 | `azoth.backuppolicy` | `BackupPolicy`, from `backup` |
 | `azoth.alerting.email` | `AlertmanagerConfig`, from `alerting` |

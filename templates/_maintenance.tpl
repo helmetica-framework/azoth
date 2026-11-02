@@ -3,7 +3,7 @@
 */}}
 {{- define "azoth.maintenance" -}}
 {{- $maintenance := (fromYaml (include "azoth.values" .)).maintenance -}}
-apiVersion: rituals.helmetica.io/v1
+apiVersion: adept.helmetica.io/v1
 kind: Maintenance
 metadata:
   name: default

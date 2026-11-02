@@ -38,17 +38,17 @@ tests:
       # A selector that matches nothing fails the assertion, so each of these is also a
       # check that the resource is there at all.
       - isAPIVersion:
-          of: seals.helmetica.io/v1
+          of: sigillum.helmetica.io/v1
         documentSelector:
           path: kind
-          value: Seal
+          value: NetworkConfig
       - isAPIVersion:
-          of: rituals.helmetica.io/v1
+          of: adept.helmetica.io/v1
         documentSelector:
           path: kind
           value: Maintenance
       - isAPIVersion:
-          of: backups.helmetica.io/v1
+          of: ampulla.helmetica.io/v1
         documentSelector:
           path: kind
           value: BackupPolicy
@@ -218,7 +218,7 @@ tests:
       - enabled.yaml
     documentSelector:
       path: kind
-      value: Seal
+      value: NetworkConfig
     asserts:
       - equal:
           path: metadata.name
@@ -239,7 +239,7 @@ tests:
       network.allowedNamespaces: [alpha, beta]
     documentSelector:
       path: kind
-      value: Seal
+      value: NetworkConfig
     asserts:
       - equal:
           path: spec.allowedNamespaces
@@ -252,7 +252,7 @@ tests:
       network.allowAllNamespaces: true
     documentSelector:
       path: kind
-      value: Seal
+      value: NetworkConfig
     asserts:
       - equal:
           path: spec.allowAllNamespaces
@@ -263,7 +263,7 @@ tests:
       - enabled.yaml
     documentSelector:
       path: kind
-      value: Seal
+      value: NetworkConfig
     asserts:
       - notExists:
           path: spec.expose
@@ -278,7 +278,7 @@ tests:
           backend: {service: redis, port: 6379}
     documentSelector:
       path: kind
-      value: Seal
+      value: NetworkConfig
     asserts:
       - notExists:
           path: spec.expose
@@ -294,7 +294,7 @@ tests:
           backend: {service: redis, port: 6379}
     documentSelector:
       path: kind
-      value: Seal
+      value: NetworkConfig
     asserts:
       - equal:
           path: spec.expose
@@ -310,7 +310,7 @@ tests:
       network.expose: true
     documentSelector:
       path: kind
-      value: Seal
+      value: NetworkConfig
     asserts:
       - notExists:
           path: spec.expose
