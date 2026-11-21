@@ -4,7 +4,7 @@ version := `awk '/^version:/{print $2}' Chart.yaml`
 REGISTRY := "oci://ghcr.io/helmetica-framework"
 
 # renovate: datasource=github-releases depName=helm-unittest/helm-unittest
-UNITTEST_VERSION := "v1.1.2"
+UNITTEST_VERSION := "v1.2.1"
 
 _default:
     @just --list
