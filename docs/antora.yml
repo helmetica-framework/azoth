@@ -1,0 +1,6 @@
+name: azoth
+title: Azoth
+version: ~
+start_page: ROOT:index.adoc
+nav:
+- modules/ROOT/nav.adoc

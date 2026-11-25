@@ -1,0 +1,10 @@
+= Develop and test
+
+Nothing in a library chart renders on its own, so `just test` lints the chart and runs the unit tests (helm-unittest, installed by the recipe if missing) against `test/fixture`, a small application chart that includes `azoth.all` and carries no values of its own.
+No cluster needed.
+
+[source,console]
+----
+$ just test
+$ just docs   # build these docs, fails on warnings
+----

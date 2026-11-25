@@ -1,0 +1,13 @@
+= Azoth
+
+The alchemists' universal solvent, present in every operation.
+
+Azoth is the library chart behind every reagent.
+It holds the templates every reagent renders on top of its service: the backup policy, the network config, the maintenance window, alerting, billing data and the monitoring network policy, plus the shared helpers behind them.
+A reagent depends on it and includes it in one line, so a fix here reaches every reagent on the next version bump instead of being copied once at scaffold time and left to rot.
+
+Reagents are scaffolded from xref:ferment::index.adoc[ferment], which carries the dependency and the include.
+Nothing here needs to be wired up by hand in a new reagent.
+
+These pages are written for service maintainers.
+They are also where end users find out what every reagent provides on top of its service.

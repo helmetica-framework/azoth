@@ -48,3 +48,11 @@ release:
     git push origin main
     git tag v{{ version }} main
     git push origin v{{ version }}
+
+# Build the docs as they appear on docs.helmetica.io; fails on warnings
+docs:
+    GOTOOLCHAIN=auto GOEXPERIMENT=jsonv2 go run github.com/helmetica-framework/rosarium@v0.1.0 preview . --kind chart
+
+# Build the docs and serve them on http://localhost:2020
+docs-serve:
+    GOTOOLCHAIN=auto GOEXPERIMENT=jsonv2 go run github.com/helmetica-framework/rosarium@v0.1.0 preview . --kind chart --serve :2020
