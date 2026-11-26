@@ -1,0 +1,30 @@
+= Templates and helpers
+
+[cols="2,5",options="header"]
+|===
+|Template |Renders
+
+|`azoth.all`
+|Everything below, each gated by its `enabled` value.
+
+|`azoth.networkconfig`
+|`NetworkConfig`, from `network`.
+
+|`azoth.maintenance`
+|`Maintenance`, from `maintenance`.
+
+|`azoth.backuppolicy`
+|`BackupPolicy`, from `backup`.
+
+|`azoth.alerting.email`
+|`AlertmanagerConfig`, from `alerting`.
+
+|`azoth.billingdata`
+|Billing data report, from `billing`.
+
+|`azoth.monitoring.networkpolicy`
+|`NetworkPolicy` letting Prometheus (namespace labelled `helmetica.io/monitoring: system`) reach every pod on every port, from `monitoring`.
+|===
+
+Helpers: `azoth.name`, `azoth.fullname`, `azoth.chart`, `azoth.labels`, `azoth.selectorLabels`, `azoth.nightlySchedule`.
+They are called with the reagent's root context, so they name and label the reagent, not this chart.

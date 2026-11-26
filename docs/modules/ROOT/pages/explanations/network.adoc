@@ -1,0 +1,4 @@
+= Network
+
+Rendered by `azoth.networkconfig` from the reagent's `network` values, as a `NetworkConfig`.
+xref:sigillum::index.adoc[sigillum] turns it into network policies and, where asked for, exposes the service outside the cluster.

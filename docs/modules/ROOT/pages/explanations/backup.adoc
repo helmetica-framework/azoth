@@ -1,0 +1,8 @@
+= Backup
+
+Rendered by `azoth.backuppolicy` from the reagent's `backup` values, as an `ampulla.helmetica.io/v1` `BackupPolicy`.
+
+The policy is the whole contract between the reagent and the backup controller, xref:ampulla::index.adoc[ampulla]: ampulla provisions a bucket for it, and in mode `Schedule` backs up every persistent volume in the instance namespace.
+Nothing else in the framework is involved.
+
+Mode `BucketOnly` provisions the bucket and stops there, for a service whose own operator writes backups to object storage.

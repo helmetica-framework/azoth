@@ -1,0 +1,25 @@
+= Use azoth in a reagent
+
+Ferment already does this for every new reagent.
+By hand:
+
+[source,yaml]
+----
+# Chart.yaml
+dependencies:
+  - name: azoth
+    version: 0.1.0
+    repository: oci://ghcr.io/helmetica-framework
+----
+
+[source,yaml]
+----
+# templates/azoth.yaml
+{{- include "azoth.all" . }}
+----
+
+`azoth.all` renders every framework resource whose `enabled` flag is set.
+Every flag but `monitoring.enabled` is off in azoth, so a reagent gets a resource only where its own `values.yaml` asks for one.
+
+A section is rendered only where the reagent asks for it, so a knob added in a later azoth stays off until the reagent picks it up.
+The knob becomes settable on the claim as soon as it is in the reagent's own `values.yaml`, which is the file chrysopoeia generates the CRD from.

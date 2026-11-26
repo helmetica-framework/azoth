@@ -1,0 +1,3 @@
+= Alerting
+
+Rendered by `azoth.alerting.email` from the reagent's `alerting` values, as an `AlertmanagerConfig` that sends alerts by email.

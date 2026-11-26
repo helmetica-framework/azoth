@@ -1,0 +1,8 @@
+= Monitoring
+
+Rendered by `azoth.monitoring.networkpolicy` from the reagent's `monitoring` values, as a `NetworkPolicy`.
+
+It lets Prometheus reach the instance to scrape its metrics.
+Prometheus runs in the namespace labelled `helmetica.io/monitoring: system`, and every port is open to it, so a reagent does not need to know which port its exporter listens on.
+
+Monitoring is the one section that is on by default: every instance is scraped unless the reagent sets `monitoring.enabled: false`.

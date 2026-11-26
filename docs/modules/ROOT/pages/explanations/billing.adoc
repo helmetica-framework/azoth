@@ -1,0 +1,5 @@
+= Billing data
+
+Rendered from the reagent's `billing` values: reports billing relevant data to an S3 bucket.
+The cluster name is injected by chrysopoeia as a platform value.
+xref:libra::index.adoc[libra] collects the data.

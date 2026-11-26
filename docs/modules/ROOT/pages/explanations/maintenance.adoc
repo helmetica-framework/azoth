@@ -1,0 +1,4 @@
+= Maintenance
+
+Rendered by `azoth.maintenance` from the reagent's `maintenance` values, as an `adept.helmetica.io/v1` `Maintenance`.
+It says when the service's maintenance runs; xref:adept::index.adoc[adept] reads it off the instance.

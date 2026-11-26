@@ -25,3 +25,5 @@
 # Packaged charts of this chart itself, charts/ dependencies stay
 /*.tgz
 test/
+# Docs are published on docs.helmetica.io, not packaged.
+docs/

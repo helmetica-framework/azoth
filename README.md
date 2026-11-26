@@ -2,53 +2,13 @@
 
 The alchemists' universal solvent, present in every operation.
 
-## Library Chart for Helmetica Reagents
+Azoth is the library chart behind every Helmetica reagent: it holds the templates every reagent renders on top of its service (backup, network, maintenance, alerting, billing, monitoring) and the shared helpers.
 
-Azoth holds the templates every reagent renders on top of its service: the backup policy,
-the network config, the maintenance window and the monitoring network policy, plus the shared helpers behind them. A
-reagent depends on it and includes it in one line, so a fix here reaches every reagent on
-the next version bump instead of being copied once at scaffold time and left to rot.
+Documentation: https://docs.helmetica.io/azoth/
 
-Reagents are scaffolded from [ferment](https://github.com/helmetica-framework/ferment),
-which carries the dependency and the include below. Nothing here needs to be wired up by
-hand in a new reagent.
+## Development
 
-## Using it
-
-```yaml
-# Chart.yaml
-dependencies:
-  - name: azoth
-    version: 0.1.0
-    repository: oci://ghcr.io/helmetica-framework
+```console
+$ just test   # lint and unit tests, no cluster needed
+$ just docs   # preview the docs
 ```
-
-```yaml
-# templates/azoth.yaml
-{{- include "azoth.all" . }}
-```
-
-`azoth.all` renders every framework resource whose `enabled` flag is set. Every flag but
-`monitoring.enabled` is off here, so a reagent gets a resource only where its own
-values.yaml asks for one. Monitoring is on unless the reagent sets `monitoring.enabled:
-false`.
-
-| Template | Renders |
-| -------- | ------- |
-| `azoth.all` | everything below, each gated by its `enabled` value |
-| `azoth.networkconfig` | `NetworkConfig`, from `network` |
-| `azoth.maintenance` | `Maintenance`, from `maintenance` |
-| `azoth.backuppolicy` | `BackupPolicy`, from `backup` |
-| `azoth.alerting.email` | `AlertmanagerConfig`, from `alerting` |
-| `azoth.monitoring.networkpolicy` | `NetworkPolicy` letting Prometheus (namespace labelled `helmetica.io/monitoring: system`) reach every pod on every port, from `monitoring` |
-
-Helpers: `azoth.name`, `azoth.fullname`, `azoth.chart`, `azoth.labels`,
-`azoth.selectorLabels`, `azoth.nightlySchedule`. They are called with the reagent's root
-context, so they name and label the reagent, not this chart.
-
-## Testing
-
-Nothing in a library chart renders on its own, so `just test` lints the chart and runs the
-unit tests (helm-unittest, installed by the recipe if missing) against `test/fixture`, a
-small application chart that includes `azoth.all` and carries no values of its own. No
-cluster needed.
